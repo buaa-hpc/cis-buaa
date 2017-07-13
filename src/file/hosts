@@ -1,0 +1,12 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+#addbylq 20170520
+10.4.14.111 gpu1
+10.4.14.112 gpu2
+10.4.14.113 gpu3
+10.4.14.114 gpu4
+10.4.14.115 gpu5
+10.4.14.116 gpu6
+10.4.14.117 gpu7
+10.4.14.118 gpu8

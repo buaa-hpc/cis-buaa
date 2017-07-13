@@ -6,29 +6,30 @@ categories:
 - Linux
 ---
 
-## 写在前面
+# 高性能集群搭建指南（一） - CentOS安装
+
+## 一、写在前面
 
 从参加超算竞赛起才接触到linux的世界，走了不少弯路，把一些小白学习时的心得记录下来，希望能对大家会有一些帮助。
-因为出发点是详细地说明，所以篇幅会比较长。其实集群的搭建工作中涉及到的东西也很有限，不过在学习完这些以后，大概就会有一种稍微入门的感觉了。
+因为出发点是详细地说明，所以篇幅会比较长。其实集群的搭建工作中涉及到的东西也比较有限，不过在学习完这些基本以后，大概就会有一种稍微入门的感觉了。
 
-一些建议
+### 1. 一些建议
 
 - 多探索，勤google，不明白的地方随手看看 man。
-- 学习时最好能明白其中的机制，不要觉得能用了就ok了。如果似懂非懂的话，在平时的使用过程中会重新出现很多问题，解决起来费时费力；在比赛中这个问题会更加严重，千里之堤，溃于蚁穴。（我觉得我这方面没有做好 QAQ ）
+- 学习时最好能明白其中的机制，不要觉得能用了就ok了。如果似懂非懂的话，在平时的使用过程中会重新出现很多问题，解决起来费时费力；在比赛中这个问题会更加严重，千里之堤，溃于蚁穴。（我觉得自己这方面没有做好 QAQ ）
 - 数据做好备份，系统内重要文件在修改前务必先备份，修改的地方加上注释便于他人查看。
 
-推荐的文档
+### 2. 一些文档
 
-   - `man`   `man -k <command>` 
-   - [鸟哥的Linux私房菜：](http://cn.linux.vbird.org/)http://cn.linux.vbird.org/<br>
+   - `man`,  `man -k <command>` 
+   - [鸟哥的Linux私房菜:](http://cn.linux.vbird.org/)http://cn.linux.vbird.org/<br>
    - [RedHat的相关文档:](https://access.redhat.com/documentation/zh_cn/red-hat-enterprise-linux/?version=7/)https://access.redhat.com/documentation/zh_cn/red-hat-enterprise-linux/?version=7/
- 
+   - [Parallel Stido Documentation:](https://software.intel.com/en-us/intel-parallel-studio-xe-support/documentation)https://software.intel.com/en-us/intel-parallel-studio-xe-support/documentation
+   - [Intel Xeon 处理器:](http://www.intel.cn/content/www/cn/zh/products/processors/xeon.html)http://www.intel.cn/content/www/cn/zh/products/processors/xeon.html
 
 ---
-## 测试环境
 
----
-## 准备工作
+## 二、准备工作
 
 ### 1. 制作U盘启动盘
 
@@ -48,7 +49,8 @@ $ dd if=CentOS-7-x86_64-Everything-1611.iso of=/dev/sdb1 bs=4M
 ```
 
 ---
-## BIOS 介绍
+
+## 三、BIOS 介绍
 
 ASC比赛官方制定服务器一般是浪潮NF系列的机架式服务器，以下简单介绍一下 `BIOS` 中需要注意和修改的地方。
 
@@ -58,31 +60,42 @@ ASC比赛官方制定服务器一般是浪潮NF系列的机架式服务器，以
 
 ![](picture/bios/setup.png)
 
-在BIOS中需要改动的地方不多，主要是涉及到服务器性能的一些选项，
+在BIOS中需要改动的地方不多，主要是涉及到服务器性能的一些选项。
 
-在 `chipset` 菜单中，选择 `Processor Configuration`
+在 `chipset` 菜单中，选择 `Processor Configuration`。
 
 ![](picture/bios/chipset.png)
 
-将 `Hyper Threading Technology` 和 `VMX` 修改为Disable
+将 `Hyper Threading Technology` 和 `VMX` 修改为Disable。
 
 ![](picture/bios/chipset-1.png)
 
 在 `chipset` 菜单中，选择 `Processor Configuration`
 将 `Power Technology` 置于 `Performance` 模式下。
-![](picture/bios/chipset-2.png)
+![](picture/bios/chipset-2.png) 
+
+### [划重点] 功耗控制
+在 `chipset` 菜单中，选择 `Advanced Power Management Configuration`,进入 `Socket RAPL Configuration` ,同时调整其中短时间和长时间的功率参数。  
+>注：这个参数并不是CPU运行的实际功率，而是安装一定比例对应的，在ASC17中，我们调整这个参数到98，实际CPU功率约为180w。
+
+后面会展开说明功耗控制的一些方法。当软件层面的RAPL无法调整功耗时，只能在BIOS中通过此步骤来控制CPU功耗。
+
+![](picture/bios/rapl.png)
 
 
 在 `boot` 菜单中，修改启动顺序，优先启动U盘；也可以在开机界面选择启动方式。
 
+
 最后保存并退出 `Save Changes and Exit` 。
-![](picture/bios/save.png)
+![](picture/bios/save.png) 
 
 ---
 
-## CentOS 安装
+## 四、CentOS 安装
 
-在系统进入U盘启动后，选择 `Install CentOS Linux 7`
+
+在系统进入U盘启动后，选择 `Install CentOS Linux 7`。
+
 ![](picture/centos/1.png)
 
 之后进入语言选择界面，选择默认的英文。
@@ -118,11 +131,15 @@ ASC比赛官方制定服务器一般是浪潮NF系列的机架式服务器，以
 
 ![](picture/centos/4.png)
 
-选择系统安装的位置，选择一块磁盘。（注意那个只有 16G的是U盘，可别选上了， 如果配了多块硬盘，那就都选上吧）
+选择系统安装的位置，选择一块磁盘。（注意那个只有 16G的是U盘，不要误选了， 如果配了多块硬盘，那就都选上吧）
 
 然后选择自定义分区。（如果是让系统自己分区的话，发现分的结果并不理想，它会把 `/home` 目录独立分区）
 
-自定义分区时，选择标准分区。 `swap` 的大小一般和内存大小保持一致；剩下的空间全部分给 `/` 目录； 如果之前U盘启动选择了 UEFI方式，在这里需要分配200M空间给 `/boot`。
+自定义分区时，选择标准分区。 `swap` 的大小一般和内存大小保持一致；剩下的空间全部分给 `/` 目录。
+如果之前U盘启动选择了 UEFI方式，在这里需要分配200M空间给 `/boot`。
+
+![](picture/centos/4-0.png) 
+
 ![](picture/centos/4-1.png)
 
 ![](picture/centos/4-2.png)
@@ -149,7 +166,7 @@ kdump是在系统崩溃、死锁或者死机的时候用来转储内存运行参
 
 ![](picture/centos/6-1.png)
 
-之后选择 `Begin Installation`
+之后选择 `Begin Installation`。
 
 ![](picture/centos/7.png)
 
@@ -160,13 +177,13 @@ kdump是在系统崩溃、死锁或者死机的时候用来转储内存运行参
 ![](picture/centos/9.png)
 
 
-之后系统会进入安装过程，在其他的教程里面，大家会说这时候你可以去喝一杯咖啡了；你以为真的可以去和咖啡啦？在进行这一步的时候我们需要去装下一台服务器了 o_O
+之后系统会进入安装过程，在其他的教程里面，大家会说这时候你可以去喝一杯咖啡了；你以为真的可以去喝咖啡啦？在进行这一步的时候我们需要去装下一台服务器了 o_O
 
 ![](picture/centos/10.png)
 
 <br>
 
-装完之后它是这个样子，需要重启一下
+装完之后它是这个样子，需要重启一下。
 
 ![](picture/centos/11.png)
 
@@ -176,4 +193,18 @@ kdump是在系统崩溃、死锁或者死机的时候用来转储内存运行参
 
 ![](picture/centos/13.png)
 
-我们按 `Ctrl` + `Alt` + `F2` 进入字符界面，然后就可以开心地进行下一步的系统配置工作啦 `ˋ(′～｀")ˊ `
+![](picture/centos/14.png)
+
+在比赛时如果需要关闭 图形界面，可以用以下命令
+
+``` bash
+$ systemctl disable gdm
+$ systemctl stop gdm
+```
+
+平时使用的时候由于 VTune 会用到GUI界面，这里我们就不禁用图形界面了。
+
+按 `Ctrl` + `Alt` + `F2` 进入字符界面，然后就可以开心地进行下一步的系统配置工作啦 ˋ(′～｀")ˊ 
+
+在CentOS中，`Ctrl` + `Alt` + `F1` 为图形界面（如果有），`Ctrl` + `Alt` + `F2`-`F6`为字符界面，相当于可以开5个窗口，并可以随时切换。
+

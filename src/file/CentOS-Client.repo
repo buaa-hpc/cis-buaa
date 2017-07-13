@@ -1,0 +1,6 @@
+[CentOS-Media]
+name=CentOS-$releasever - Media
+baseurl=ftp://gpu1/base
+enable=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7

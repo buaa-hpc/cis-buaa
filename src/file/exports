@@ -1,0 +1,1 @@
+/home/cluster *(rw,insecure,sync,no_all_squash,no_root_squash,fsid=0,sync)

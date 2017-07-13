@@ -1,0 +1,7 @@
+[epel-Client]
+name=epel-Client
+baseurl=ftp://gpu1/epel
+enable=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+
