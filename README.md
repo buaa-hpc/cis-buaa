@@ -1,2 +1,2 @@
 # CIS
-Cluster Initial Setup :)
+Cluster Initial Setup : )
